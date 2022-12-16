@@ -1,12 +1,15 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
-from rest_framework.fields import CurrentUserDefault
-from rest_framework.generics import get_object_or_404
-from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Recipe
 
 from .models import Follow, User
+
+# from rest_framework.generics import get_object_or_404
+# from rest_framework.validators import UniqueTogetherValidator
+
+
+# from django.core.files.base import ContentFile
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -55,7 +58,6 @@ class CustomUserSerializers(UserSerializer):
             'username',
             'first_name',
             'last_name',
-            'password',
             'is_subscribed'
         )
 
@@ -68,43 +70,42 @@ class CustomUserSerializers(UserSerializer):
 
 class FollowRecipeSerializer(serializers.ModelSerializer):
     """
-    Сериализация рецептов для FollowListSerializer.
+    Сериализация рецептов для FollowSerializer.
     """
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class FollowListSerializer(serializers.ModelSerializer):
+class FollowSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='author.id')
+    email = serializers.ReadOnlyField(source='author.email')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField(
         source='recipes.count', read_only=True
     )
 
     def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
         if self.context['request'].user.is_anonymous:
             return False
-        return Follow.objects.filter(
-            author=obj, user=self.context['request'].user
-        ).exists()
+        return Follow.objects.filter(user=user, author=obj.author).exists()
 
     def get_recipes(self, obj):
-        request = self.context['request']
+        request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        author = get_object_or_404(User, id=obj.pk)
-        recipes = author.recipes.all()
+        queryset = Recipe.objects.filter(author=obj.author)
         if limit:
-            recipes = recipes[:int(limit)]
-        serializer = FollowRecipeSerializer(
-            recipes,
-            many=True,
-            context={'request': request}
-        )
-        return serializer.data
+            queryset = queryset[:int(limit)]
+        return FollowRecipeSerializer(queryset, many=True).data
 
     class Meta:
-        model = User
+        model = Follow
         fields = (
             'email',
             'id',
@@ -115,34 +116,3 @@ class FollowListSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count'
         )
-
-
-class FollowCreateSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
-        slug_field='id',
-        queryset=User.objects.all(),
-        default=CurrentUserDefault(),
-        ),
-    author = serializers.SlugRelatedField(
-        slug_field='id',
-        queryset=User.objects.all())
-
-    def validate(self, data):
-        user = data['user']
-        author = data['author']
-        if self.context['request'].method == 'POST' and user == author:
-            raise serializers.ValidationError(
-                'Нельзя подписаться на самого себя'
-            )
-        return data
-
-    class Meta:
-        model = Follow
-        fields = ('user', 'author')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=('user', 'author'),
-                message='Вы уже подписаны на данного автора'
-            )
-        ]

@@ -4,17 +4,19 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Follow, User
-from .serializers import FollowCreateSerializer, FollowListSerializer
+from .serializers import FollowSerializer
 
 
 class SubscriptionsView(generics.ListAPIView):
-    queryset = User.objects.all()
+    """Получить на кого пользователь подписан."""
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FollowListSerializer
 
-    def get_queryset(self):
-        user = self.request.user
-        return User.objects.filter(following__user=user)
+    def list(self, request):
+        queryset = Follow.objects.filter(user=request.user)
+        page = self.paginate_queryset(queryset)
+        serializer = FollowSerializer(page, many=True,
+                                      context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
 
 class FollowViewSet(viewsets.ModelViewSet):
@@ -24,39 +26,45 @@ class FollowViewSet(viewsets.ModelViewSet):
     Получение списка подписок
 
     """
-
-    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
-    def subscriptions(self, request):
-        queryset = Follow.objects.filter(user=request.user)
-        page = self.paginate_queryset(queryset)
-        serializer = FollowCreateSerializer(page, many=True,
-                                            context={'request': request})
-        return self.get_paginated_response(serializer.data)
+    # почему-то не работает ???
+    # @action(
+    #     detail=True,
+    #     permission_classes=(permissions.IsAuthenticated,))
+    # def subscriptions(self, request):
+    #     """Получить на кого пользователь подписан."""
+    #     queryset = Follow.objects.filter(user=request.user)
+    #     pages = self.paginate_queryset(queryset)
+    #     serializer = FollowSerializer(
+    #         pages, many=True,
+    #         context={'request': request})
+    #     return self.get_paginated_response(serializer.data)
 
     @action(detail=True,
             methods=['post'],
             permission_classes=[permissions.IsAuthenticated])
-    def subscribe(self, request, id=None):
+    def subscribe(self, request, pk):
         user = request.user
-        author = get_object_or_404(User, id=id)
+        author = get_object_or_404(User, id=pk)
+
         if user == author:
-            return Response({'errors':
-                            'Вы не можете подписаться на себя.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'errors': 'Вы не можете подписываться на самого себя'
+            }, status=status.HTTP_400_BAD_REQUEST)
         if Follow.objects.filter(user=user, author=author).exists():
-            return Response({'errors':
-                            'Вы уже подписались на автора.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        Follow.objects.create(user=user, author=author)
-        queryset = Follow.objects.get(user=request.user, author=author)
-        serializer = FollowCreateSerializer(queryset,
-                                            context={'request': request})
+            return Response({
+                'errors': 'Вы уже подписаны на данного пользователя'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        follow = Follow.objects.get_or_create(user=user, author=author)[0]
+        serializer = FollowSerializer(
+            follow, context={'request': request}
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
-    def subscribe_del(self, request, id=None):
+    def subscribe_del(self, request, pk=None):
         user = request.user
-        author = get_object_or_404(User, id=id)
+        author = get_object_or_404(User, id=pk)
         if not Follow.objects.filter(user=user, author=author).exists():
             return Response({'errors': 'Подписки не существует.'},
                             status=status.HTTP_400_BAD_REQUEST)

@@ -4,14 +4,6 @@ from django.db import models
 
 User = get_user_model()
 
-# UNIT = [
-#     ('л', 'литры'),
-#     ('г', 'граммы'),
-#     ('ст. л', 'столовая ложка'),
-#     ('ч. л', 'чайная ложка'),
-#     ('ст. л', 'столовая ложка'),
-#     ]
-
 
 class Tag(models.Model):
     name = models.CharField(
