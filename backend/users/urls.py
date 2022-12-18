@@ -13,7 +13,7 @@ urlpatterns = [
         'users/subscriptions/', SubscriptionsView.as_view(),
         name='subscriptions'
         ),
-    path("", include('djoser.urls')),
+    path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
     path('', include(router.urls)),
 ]

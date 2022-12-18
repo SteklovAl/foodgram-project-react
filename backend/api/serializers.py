@@ -1,11 +1,9 @@
 import base64
 
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers
-
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientDetails, ShoppingCart, Tag)
+from rest_framework import serializers
 from users.serializers import CustomUserSerializers
 
 
@@ -34,7 +32,6 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'measurement_unit')
         model = Ingredient
-        # read_only_fields = ('id', 'name', 'measurement_unit')
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -146,16 +143,43 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         ingredient_data = self.initial_data.get('ingredients')
-        if ingredient_data:
-            checked_ingredients = set()
-            for ingredient in ingredient_data:
-                ingredient_obj = get_object_or_404(
-                    Ingredient, id=ingredient['id']
-                )
-                if ingredient_obj in checked_ingredients:
-                    raise serializers.ValidationError('дубликат ингредиента')
-                checked_ingredients.add(ingredient_obj)
+        checked_ingredients = []
+        if not ingredient_data:
+            raise serializers.ValidationError(
+                'Нельзя создать рецепт без ингредиентов')
+        for ingredient in ingredient_data:
+            checked_ingredients.append(ingredient['id'])
+        if len(checked_ingredients) > len(set(checked_ingredients)):
+            raise serializers.ValidationError('Дубликат ингредиента')
         return data
+
+    def add_ingredients(self, ingredients, recipe):
+        ingredients_list = [RecipeIngredientDetails(
+            recipe=recipe,
+            ingredient=ingredient['id'],
+            amount=ingredient['amount'],
+        ) for ingredient in ingredients]
+        RecipeIngredientDetails.objects.bulk_create(ingredients_list)
+
+    def add_tags(self, tags, recipe):
+        for tag in tags:
+            recipe.tags.add(tag)
+
+    def create(self, validated_data):
+        author = self.context.get('request').user
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        self.add_tags(tags, recipe)
+        self.add_ingredients(ingredients, recipe)
+        return recipe
+
+    def update(self, recipe, validated_data):
+        recipe.tags.clear()
+        RecipeIngredientDetails.objects.filter(recipe=recipe).delete()
+        self.add_tags(validated_data.pop('tags'), recipe)
+        self.add_ingredients(validated_data.pop('ingredients'), recipe)
+        return super().update(recipe, validated_data)
 
     class Meta:
         model = Recipe

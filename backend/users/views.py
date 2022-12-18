@@ -8,7 +8,7 @@ from .serializers import FollowSerializer
 
 
 class SubscriptionsView(generics.ListAPIView):
-    """Получить на кого пользователь подписан."""
+    """Список подписок пользователя."""
     permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request):
@@ -23,21 +23,7 @@ class FollowViewSet(viewsets.ModelViewSet):
     """
     Подписка.
     Удаление подписки.
-    Получение списка подписок
-
     """
-    # почему-то не работает ???
-    # @action(
-    #     detail=True,
-    #     permission_classes=(permissions.IsAuthenticated,))
-    # def subscriptions(self, request):
-    #     """Получить на кого пользователь подписан."""
-    #     queryset = Follow.objects.filter(user=request.user)
-    #     pages = self.paginate_queryset(queryset)
-    #     serializer = FollowSerializer(
-    #         pages, many=True,
-    #         context={'request': request})
-    #     return self.get_paginated_response(serializer.data)
 
     @action(detail=True,
             methods=['post'],

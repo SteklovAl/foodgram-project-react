@@ -57,6 +57,11 @@ class User(AbstractUser):
         'last_name',
     ]
 
+    class Meta:
+        ordering = ['-id']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -67,11 +72,6 @@ class User(AbstractUser):
     @property
     def is_user(self):
         return self.role == 'user'
-
-    class Meta:
-        ordering = ['-id']
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
 
 
 class Follow(models.Model):
@@ -89,5 +89,9 @@ class Follow(models.Model):
     )
 
     class Meta:
+        ordering = ['-author_id']
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f"{self.user} подписан на {self.author}"

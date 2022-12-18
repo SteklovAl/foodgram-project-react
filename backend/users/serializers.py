@@ -1,15 +1,8 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from recipes.models import Recipe
 from rest_framework import serializers
 
-from recipes.models import Recipe
-
 from .models import Follow, User
-
-# from rest_framework.generics import get_object_or_404
-# from rest_framework.validators import UniqueTogetherValidator
-
-
-# from django.core.files.base import ContentFile
 
 
 class UserCreateSerializer(UserCreateSerializer):

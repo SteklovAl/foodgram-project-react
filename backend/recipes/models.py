@@ -20,11 +20,11 @@ class Tag(models.Model):
         verbose_name='Слаг'
     )
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self) -> str:
         return self.name
-
-    class Meta:
-        ordering = ['-name']
 
 
 class Ingredient(models.Model):
@@ -37,11 +37,11 @@ class Ingredient(models.Model):
         verbose_name='Единица измерения'
     )
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self) -> str:
         return self.name
-
-    class Meta:
-        ordering = ['-name']
 
 
 class Recipe(models.Model):
@@ -82,12 +82,12 @@ class Recipe(models.Model):
         help_text='Время приготовления'
     )
 
+    class Meta:
+        ordering = ['-pub_date']
+
     def __str__(self) -> str:
         # выводим описание рецепта
         return self.text[:15]
-
-    class Meta:
-        ordering = ['-pub_date']
 
 
 class RecipeIngredientDetails(models.Model):
@@ -102,6 +102,12 @@ class RecipeIngredientDetails(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество ингредиента',
     )
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self) -> str:
+        return f'{self.recipe}_{self.ingredient}_{self.amount}'
 
 
 class Favorite(models.Model):
@@ -120,13 +126,13 @@ class Favorite(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return f'избранное пользователя {self.user}'
-
     class Meta():
         ordering = ['-id']
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
+
+    def __str__(self):
+        return f'избранное пользователя {self.user}'
 
 
 class ShoppingCart(models.Model):
@@ -146,12 +152,12 @@ class ShoppingCart(models.Model):
         verbose_name='Рецепт'
         )
 
-    def __str__(self):
-        return f'список покупок пользователя {self.user}'
-
     class Meta():
         ordering = ['-id']
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         models.UniqueConstraint(
             fields=['user', 'recipe'], name='unique_recording')
+
+    def __str__(self):
+        return f'список покупок пользователя {self.user}'

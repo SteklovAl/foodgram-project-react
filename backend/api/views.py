@@ -3,14 +3,13 @@ import io
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from recipes.models import (Favorite, Ingredient, Recipe,
+                            RecipeIngredientDetails, ShoppingCart, Tag)
 from reportlab.pdfgen.canvas import Canvas
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
-from recipes.models import (Favorite, Ingredient, Recipe,
-                            RecipeIngredientDetails, ShoppingCart, Tag)
 
 from .permissions import AuthorOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
@@ -55,53 +54,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrReadOnly,)
 
-    def create(self, request, *args, **kwargs):
-        serializer = RecipeSerializer(data=request.data)
+    def create_object(request, pk, serializers):
+        data = {'user': request.user.id, 'recipe': pk}
+        serializer = serializers(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        ingredients = serializer.validated_data.pop('ingredients')
-        tags = serializer.validated_data.pop('tags')
-        recipe = Recipe.objects.create(author=self.request.user,
-                                       **serializer.validated_data)
-        recipe.tags.set(tags)
-        ingredients_list = [
-            RecipeIngredientDetails(
-                recipe=recipe,
-                ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount')
-            )
-            for ingredient in ingredients
-        ]
-        RecipeIngredientDetails.objects.bulk_create(ingredients_list)
-        serializer = RecipeSerializer(instance=recipe,
-                                      context={'request': request})
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def update(self, request, pk=None, *args, **kwargs):
-        instance = get_object_or_404(Recipe, pk=pk)
-        instance.tags.clear()
-        RecipeIngredientDetails.objects.filter(recipe=instance).delete()
-        serializer = RecipeSerializer(instance, data=request.data,
-                                      partial=True)
-        serializer.is_valid(raise_exception=True)
-        ingredients = serializer.validated_data.pop('ingredients')
-        tags = serializer.validated_data.pop('tags')
-        if tags:
-            instance.tags.set(tags)
-        if ingredients:
-            instance.ingredients.clear()
-            ingredients_list = [
-                RecipeIngredientDetails(
-                    recipe=instance,
-                    ingredient=ingredient.get('id'),
-                    amount=ingredient.get('amount')
-                )
-                for ingredient in ingredients
-            ]
-            RecipeIngredientDetails.objects.bulk_create(ingredients_list)
-            serializer.save()
-            serializer = RecipeSerializer(instance=instance,
-                                          context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=True,
