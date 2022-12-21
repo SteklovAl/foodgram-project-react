@@ -1,15 +1,15 @@
 import io
 
-import reportlab
-from django.conf import settings
+# import reportlab
+# from django.conf import settings
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientDetails, ShoppingCart, Tag)
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+# from reportlab.pdfbase import pdfmetrics
+# from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -137,10 +137,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'ingredient__name').annotate(amount=Sum('amount'))
         buffer = io.BytesIO()
         canvas = Canvas(buffer)
-        reportlab.rl_config.TTFSearchPath.append(
-            str(settings.BASE_DIR) + 'backend')
-        pdfmetrics.registerFont(
-            TTFont('Arial', 'Arial.ttf', 'UTF-8'))
+        # reportlab.rl_config.TTFSearchPath.append(
+        #     str(settings.BASE_DIR) + 'backend')
+        # pdfmetrics.registerFont(
+        #     TTFont('Arial', 'Arial.ttf', 'UTF-8'))
         canvas.setFont('Arial', 32)
         canvas.drawString(60, 800, 'Продуктовый помощник')
         canvas.drawString(60, 760, 'список покупок:')
