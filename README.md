@@ -1,7 +1,7 @@
 # Дипломный проект курса "Python Developer"
 
 
-## ip: 158.160.51.211
+## Проект доступен по адресу ip: 158.160.51.211
 
 ![This is an image](https://github.com/SteklovAl/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg)
 
