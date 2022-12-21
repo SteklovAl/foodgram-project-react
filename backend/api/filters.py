@@ -2,9 +2,11 @@
 Настройка пользовательских фильтров.
 """
 
+from django_filters import CharFilter
 from django_filters import rest_framework as django_filter
-from recipes.models import Recipe
 from rest_framework import filters
+
+from recipes.models import Ingredient, Recipe
 from users.models import User
 
 
@@ -46,4 +48,8 @@ class IngredientSearchFilter(filters.SearchFilter):
     """
     Настройка фильтра поиска модели продуктов.
     """
-    search_param = 'name'
+    name = CharFilter(field_name="name", method="name_filter")
+
+    class Meta:
+        model = Ingredient
+        fields = ["name"]

@@ -3,13 +3,16 @@ from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.pagination import LimitPagePagination
+
 from .models import Follow, User
 from .serializers import FollowSerializer
 
 
 class SubscriptionsView(generics.ListAPIView):
-    """Список подписок пользователя."""
+    """Получить на кого пользователь подписан."""
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = LimitPagePagination
 
     def list(self, request):
         queryset = Follow.objects.filter(user=request.user)

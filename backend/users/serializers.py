@@ -1,6 +1,7 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import Recipe
 from rest_framework import serializers
+
+from recipes.models import Recipe
 
 from .models import Follow, User
 
@@ -78,7 +79,6 @@ class FollowSerializer(serializers.ModelSerializer):
     last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField(
         source='recipes.count', read_only=True
     )
