@@ -14,10 +14,18 @@ services:
       - static_value:/app/bstatic/
       - media_value:/app/bmedia/
 
-    depends_on:
-      - db
+    # depends_on:
+      # - db
     env_file:
       - ./.env
+  frontend:
+    image: aleksandrsteklov/foodgram_frontend:latest
+    volumes:
+      - ../frontend/:/app/result_build/
+    # depends_on:
+      #  - db
+      #  - backend
+
   nginx:
     container_name: nginx
     image: nginx:1.19.3
@@ -29,8 +37,8 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/bstatic/
       - media_value:/var/html/bmedia/
-    depends_on:
-      - backend
+    # depends_on:
+      # - backend
 
 volumes:
   static_value:
