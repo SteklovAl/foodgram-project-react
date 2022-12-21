@@ -19,8 +19,8 @@ from rest_framework.response import Response
 from .filters import IngredientSearchFilter, RecipeFilter
 from .pagination import LimitPagePagination
 from .permissions import AuthorOrReadOnly
-from .serializers import (FavoriteSerializer, ShoppingCartSerializer,
-                          RecipeSerializer, TagSerializer)
+from .serializers import (FavoriteSerializer, RecipeSerializer,
+                          ShoppingCartSerializer, TagSerializer)
 
 
 class ListRetrieveCustomViewSet(mixins.ListModelMixin,

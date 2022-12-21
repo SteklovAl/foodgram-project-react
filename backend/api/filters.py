@@ -46,7 +46,7 @@ class IngredientSearchFilter(django_filter.FilterSet):
     """
     Настройка фильтра поиска модели продуктов.
     """
-    name = CharFilter(lookup_expr='iexact')
+    name = CharFilter(lookup_expr='istartswith')
 
     class Meta:
         model = Ingredient
