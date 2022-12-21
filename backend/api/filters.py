@@ -5,7 +5,6 @@
 from django_filters import CharFilter
 from django_filters import rest_framework as django_filter
 from recipes.models import Ingredient, Recipe
-from rest_framework import filters
 from users.models import User
 
 
@@ -43,12 +42,12 @@ class RecipeFilter(django_filter.FilterSet):
         return queryset.all()
 
 
-class IngredientSearchFilter(filters.SearchFilter):
+class IngredientSearchFilter(django_filter.FilterSet):
     """
     Настройка фильтра поиска модели продуктов.
     """
-    name = CharFilter(field_name="name", method="name_filter")
+    name = CharFilter(lookup_expr='iexact')
 
     class Meta:
         model = Ingredient
-        fields = ["name"]
+        fields = ('name', )
