@@ -19,23 +19,19 @@ from rest_framework.response import Response
 from .filters import IngredientSearchFilter, RecipeFilter
 from .pagination import LimitPagePagination
 from .permissions import AuthorOrReadOnly
-from .serializers import (FavoriteSerializer, RecipeSerializer,
-                          ShoppingCartSerializer, TagSerializer)
+from .serializers import (FavoriteSerializer, IngredientSerializer,
+                          RecipeSerializer, ShoppingCartSerializer,
+                          TagSerializer)
 
 
-class ListRetrieveCustomViewSet(mixins.ListModelMixin,
-                                mixins.RetrieveModelMixin,
-                                viewsets.GenericViewSet):
-    """GET запросы."""
-    pass
-
-
-class IngredientViewSet(ListRetrieveCustomViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Получение списка ингредиентов.
     """
     queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
+    filter_backends = (DjangoFilterBackend, )
     search_fields = ('^name',)
     filter_class = IngredientSearchFilter
     pagination_class = None
