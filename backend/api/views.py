@@ -1,7 +1,7 @@
 import io
 
-# import reportlab
-# from django.conf import settings
+import reportlab
+from django.conf import settings
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -137,8 +137,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'ingredient__name').annotate(amount=Sum('amount'))
         buffer = io.BytesIO()
         canvas = Canvas(buffer)
-        # reportlab.rl_config.TTFSearchPath.append(
-        #     str(settings.BASE_DIR) + 'backend')
+        reportlab.rl_config.TTFSearchPath.append(
+            str(settings.BASE_DIR) + '/backend')
         pdfmetrics.registerFont(
             TTFont('Country', 'Country.ttf', 'UTF-8'))
         canvas.setFont('Country', 32)
