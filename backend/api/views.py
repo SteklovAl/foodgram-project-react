@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientDetails, ShoppingCart, Tag)
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
@@ -154,12 +156,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'ingredient__name').annotate(amount=Sum('amount'))
         buffer = io.BytesIO()
         canvas = Canvas(buffer)
-        canvas.setFont('Times-Roman', 36)
+        # pdfmetrics.registerFont(
+        #     TTFont('Country', 'Country.ttf', 'UTF-8'))
+        canvas.setFont('Courier', 32)
         canvas.drawString(70, 800, 'Продуктовый помощник')
         canvas.drawString(70, 760, 'список покупок:')
-        canvas.setFont('Times-Roman', size=18)
+        canvas.setFont('Courier', size=18)
         canvas.drawString(70, 700, 'Ингредиенты:')
-        canvas.setFont('Times-Roman', size=16)
+        canvas.setFont('Courier', size=16)
         canvas.drawString(70, 670, 'Название:')
         canvas.drawString(220, 670, 'Количество:')
         canvas.drawString(350, 670, 'Единица измерения:')
