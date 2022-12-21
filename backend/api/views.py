@@ -1,5 +1,7 @@
 import io
 
+import reportlab
+from django.conf import settings
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
@@ -72,21 +74,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    # @staticmethod
-    # def delete_object(request, pk, model):
-    #     user = request.user
-    #     recipe = get_object_or_404(Recipe, pk=pk)
-    #     object = get_object_or_404(model, user=user, recipe=recipe)
-    #     object.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # def _create_or_destroy(self, http_method, recipe, key,
-    #                        model, serializer):
-    #     if http_method == 'POST':
-    #         return self.create_object(request=recipe, pk=key,
-    #                                   serializers=serializer)
-    #     return self.delete_object(request=recipe, pk=key, model=model)
-
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
@@ -156,6 +143,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'ingredient__name').annotate(amount=Sum('amount'))
         buffer = io.BytesIO()
         canvas = Canvas(buffer)
+        reportlab.rl_config.TTFSearchPath.append(
+            str(settings.BASE_DIR) + 'backend')
         pdfmetrics.registerFont(
             TTFont('Arial', 'Arial.ttf', 'UTF-8'))
         canvas.setFont('Arial', 32)
