@@ -7,8 +7,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientDetails, ShoppingCart, Tag)
 from reportlab.pdfgen.canvas import Canvas
-# from reportlab.pdfbase import pdfmetrics
-# from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -156,15 +156,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'ingredient__name').annotate(amount=Sum('amount'))
         buffer = io.BytesIO()
         canvas = Canvas(buffer)
-        # pdfmetrics.registerFont(
-        #     TTFont('Country', 'Country.ttf', 'UTF-8'))
-        canvas.setFont('Courier', 32)
-        canvas.drawString(70, 800, 'Продуктовый помощник')
-        canvas.drawString(70, 760, 'список покупок:')
-        canvas.setFont('Courier', size=18)
-        canvas.drawString(70, 700, 'Ингредиенты:')
-        canvas.setFont('Courier', size=16)
-        canvas.drawString(70, 670, 'Название:')
+        pdfmetrics.registerFont(
+            TTFont('Arial', 'Arial.ttf', 'UTF-8'))
+        canvas.setFont('Arial', 32)
+        canvas.drawString(60, 800, 'Продуктовый помощник')
+        canvas.drawString(60, 760, 'список покупок:')
+        canvas.setFont('Arial', size=18)
+        canvas.drawString(60, 700, 'Ингредиенты:')
+        canvas.setFont('Arial', size=16)
+        canvas.drawString(60, 670, 'Название:')
         canvas.drawString(220, 670, 'Количество:')
         canvas.drawString(350, 670, 'Единица измерения:')
         height = 630
