@@ -8,8 +8,8 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientDetails, ShoppingCart, Tag)
-# from reportlab.pdfbase import pdfmetrics
-# from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
@@ -139,14 +139,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         canvas = Canvas(buffer)
         # reportlab.rl_config.TTFSearchPath.append(
         #     str(settings.BASE_DIR) + 'backend')
-        # pdfmetrics.registerFont(
-        #     TTFont('Arial', 'Arial.ttf', 'UTF-8'))
-        canvas.setFont('Courier', 32)
+        pdfmetrics.registerFont(
+            TTFont('Country', 'Country.ttf', 'UTF-8'))
+        canvas.setFont('Country', 32)
         canvas.drawString(60, 800, 'Продуктовый помощник')
         canvas.drawString(60, 760, 'список покупок:')
-        canvas.setFont('Courier', size=18)
+        canvas.setFont('Country', size=18)
         canvas.drawString(60, 700, 'Ингредиенты:')
-        canvas.setFont('Courier', size=16)
+        canvas.setFont('Country', size=16)
         canvas.drawString(60, 670, 'Название:')
         canvas.drawString(220, 670, 'Количество:')
         canvas.drawString(350, 670, 'Единица измерения:')
