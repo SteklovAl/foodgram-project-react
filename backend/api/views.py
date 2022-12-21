@@ -140,13 +140,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         reportlab.rl_config.TTFSearchPath.append(
             str(settings.BASE_DIR) + '/backend')
         pdfmetrics.registerFont(
-            TTFont('Country', 'Country.ttf', 'UTF-8'))
-        canvas.setFont('Country', 32)
+            TTFont('arial', 'arial.ttf', 'UTF-8'))
+        canvas.setFont('arial', 32)
         canvas.drawString(60, 800, 'Продуктовый помощник')
         canvas.drawString(60, 760, 'список покупок:')
-        canvas.setFont('Country', size=18)
+        canvas.setFont('arial', size=18)
         canvas.drawString(60, 700, 'Ингредиенты:')
-        canvas.setFont('Country', size=16)
+        canvas.setFont('arial', size=16)
         canvas.drawString(60, 670, 'Название:')
         canvas.drawString(220, 670, 'Количество:')
         canvas.drawString(350, 670, 'Единица измерения:')
