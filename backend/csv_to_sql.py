@@ -14,7 +14,7 @@ cursor.execute('''CREATE TABLE if not exists recipes_ingredient(
 )
 ''')
 
-with open('D:/Dev/foodgram-project-react/data/ingredients.csv',
+with open('D:/Dev/foodgram-project-react/backend/ingredients.csv',
           'r', encoding='utf8') as f:
     dr = csv.DictReader(f, delimiter=",")
     to_db = [(

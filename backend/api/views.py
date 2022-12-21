@@ -3,6 +3,7 @@ import io
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientDetails, ShoppingCart, Tag)
 from reportlab.pdfgen.canvas import Canvas
@@ -11,6 +12,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from .filters import IngredientSearchFilter, RecipeFilter
+from .pagination import LimitPagePagination
 from .permissions import AuthorOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeSerializer, ShoppingCartSerializer,
@@ -32,6 +35,8 @@ class IngredientViewSet(ListRetrieveCustomViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
     search_fields = ('name',)
+    filter_class = IngredientSearchFilter
+    pagination_class = None
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -53,13 +58,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrReadOnly,)
+    filter_backends = (DjangoFilterBackend, )
+    filter_class = RecipeFilter
+    pagination_class = LimitPagePagination
 
+    @staticmethod
     def create_object(request, pk, serializers):
         data = {'user': request.user.id, 'recipe': pk}
         serializer = serializers(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    # @staticmethod
+    # def delete_object(request, pk, model):
+    #     user = request.user
+    #     recipe = get_object_or_404(Recipe, pk=pk)
+    #     object = get_object_or_404(model, user=user, recipe=recipe)
+    #     object.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # def _create_or_destroy(self, http_method, recipe, key,
+    #                        model, serializer):
+    #     if http_method == 'POST':
+    #         return self.create_object(request=recipe, pk=key,
+    #                                   serializers=serializer)
+    #     return self.delete_object(request=recipe, pk=key, model=model)
 
     @action(
         detail=True,
