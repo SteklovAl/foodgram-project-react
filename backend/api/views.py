@@ -142,17 +142,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
         pdfmetrics.registerFont(
             TTFont('arial', 'arial.ttf', 'UTF-8'))
         canvas.setFont('arial', 32)
-        canvas.drawString(60, 800, 'Продуктовый помощник')
-        canvas.drawString(60, 760, 'список покупок:')
+        canvas.drawString(60, 790, 'Продуктовый помощник')
+        canvas.drawString(60, 750, 'список покупок:')
         canvas.setFont('arial', size=18)
-        canvas.drawString(60, 700, 'Ингредиенты:')
+        canvas.drawString(60, 690, 'Ингредиенты:')
         canvas.setFont('arial', size=16)
-        canvas.drawString(60, 670, 'Название:')
-        canvas.drawString(220, 670, 'Количество:')
-        canvas.drawString(350, 670, 'Единица измерения:')
-        height = 630
+        canvas.drawString(60, 660, 'Название:')
+        canvas.drawString(220, 660, 'Количество:')
+        canvas.drawString(350, 660, 'Единица измерения:')
+        height = 620
         for ingredient in ingredients:
-            canvas.drawString(70, height, f"{ingredient['ingredient__name']}")
+            canvas.drawString(60, height, f"{ingredient['ingredient__name']}")
             canvas.drawString(250, height,
                               f"{ingredient['amount']}")
             canvas.drawString(380, height,

@@ -133,3 +133,5 @@ dmypy.json
 
 # postgreSQL
 .\infra\postgresql-data
+
+json_to_db.py
