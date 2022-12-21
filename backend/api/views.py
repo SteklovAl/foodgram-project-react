@@ -36,9 +36,8 @@ class IngredientViewSet(ListRetrieveCustomViewSet):
     Получение списка ингредиентов.
     """
     queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
-    search_fields = ('name',)
+    search_fields = ('^name',)
     filter_class = IngredientSearchFilter
     pagination_class = None
 
